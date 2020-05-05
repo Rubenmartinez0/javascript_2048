@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        
+        <!-- Import custom css -->
+        <link rel="stylesheet" href="css/style.css">
+
+
+        <!-- Import JQuery/AJAX -->
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+        <title>Rush 2048</title>
+    </head>
+    <body>
+        <div align="center">
+            <h2>Points: </h2>
+            <h2 id="points">0</h2>
+        </div>
+
+        <div class="Games">
+            <!-- 2048 game is inserted here -->
+        </div>
+
+        
+
+        <!-- Import Javascript file -->
+        <script type="text/javascript" src="js/2048.js"></script>
+
+        <!-- Call our game inside the elements with class "Games" -->
+        <script type="text/javascript">
+            $(function(){
+                $(".Games").game2048();
+            });
+        </script>
+
+    </body>
+</html>

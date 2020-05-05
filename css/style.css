@@ -1,0 +1,30 @@
+table {
+    margin: auto;
+    padding: 15px;
+    border-spacing: 10px;
+    border: solid 5px #207567;
+    border-radius: 10px;
+    background-color: #207567;
+}
+
+td {
+    width: 200px;
+    height: 200px;
+    font-size: 25px;
+    border: solid 3px darkgrey;
+    text-align: center;
+    border-radius: 10px;
+    background-color: white;
+    position:relative;
+}
+
+/*
+	#DFEAE2
+
+	#B4D6C1 <- 2
+	#8DC3A7 <- 4
+	#6BAF92 <- 8
+	#4E9C81 <- 16
+	#358873 <- 32
+	#207567 <- 64
+*/
