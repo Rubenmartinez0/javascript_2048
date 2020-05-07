@@ -1,15 +1,17 @@
 (function($){ // State that we are creating a plugin. This avoids conflics.
 
+    //Fix case when it creates a new cell just where you moved to.
+
     $.fn.game2048 = function(){ //game2048 plugin implementation.
 
         function generateTable(){
             //Create a 4x4 table filling every cell with a 0.
             let table = $("<table></table>");
-            //Create 4 rows
-            for (var y = 0; y < 4; y++) {
-                //Create 4 columns. Initial value for every cell will be 0. Also save the x, y coordinates.
+            
+            for (var y = 0; y < 4; y++) {//Create 4 rows.
                 let row = $("<tr></tr>");
-                for (var x = 0; x < 4; x++) {
+                for (var x = 0; x < 4; x++) {//Create 4 columns.
+                    //Initial value for every cell will be 0. Also save the x, y coordinates as atributes.
                     let cell = $("<td>0</td>").attr("x",x).attr("y",y).attr("value",0);
                     row.append(cell);
                 }
@@ -21,24 +23,17 @@
         function generateCell(numberOfCells){
             //Choose random cells in order to change their value to 2 o 4.
             for(var i = 0; i < numberOfCells; i++){
-                //Generate a value between 0 and 3 included.
-                let x = Math.floor((Math.random() * 10))%4;
-                let y = Math.floor((Math.random() * 10))%4;
+                let x = Math.floor((Math.random() * 10))%4;//Generate an X value between 0 and 3 included.
+                let y = Math.floor((Math.random() * 10))%4;//Generate an Y value between 0 and 3 included.
+                let cell = $("[x=" + x + "][y=" + y + "][value=0]");//Get the cell.
 
-                //Get the cell.
-                let cell = $("[x=" + x + "][y=" + y + "][value=0]");
-
-                //Check if the cell exists with a value of 0.
-                if(cell[0]){
-                    //Generate a value that can be 0 or 1 with 50% probability.
-                    let value = Math.floor(Math.random() *2);
-
+                if(cell[0]){//Check if the cell exists. If exists it means it is empty(value = 0).
+                    let value = Math.floor(Math.random() *2);//Generate a value between 0 and 1 included.
                     if(value === 1){
                         value = 4;
                     }else{
                         value = 2;
                     }
-
                     cell.attr("value", value);
                     cell.text(value);
                     updateColors();           
@@ -86,31 +81,25 @@
 
         function moveToLeft(){
             let cellGenerated = false;
+
             for(var y = 0; y < 4; y++){
                 var emptySpaces = 0;
                 for(var x = 0; x < 4; x++){
+                    let currentCell = $("[x=" + x + "][y=" + y + "]");//Obtain data from the cell we are currently on.
+                    currentCellValue = currentCell.attr("value")
                     
-                    //Check if the current cell we are on is empty.
-                    let currentCell = $("[x=" + x + "][y=" + y + "][value=0]");
-                    if(currentCell[0]){
-                        //Count the empty spaces in every row.
-                        emptySpaces++;
+                    if(currentCell.attr("value") === "0"){//Check if the current cell we are on is empty.
+                        emptySpaces++;//Add up if is empty
                     }else{
                         //If we are not on the edge(x = 0).
                         if(emptySpaces > 0){
-                            //Take the properties of the current cell we are on.
-                            currentCell = $("[x=" + x + "][y=" + y + "]");
-                            currentCellValue = currentCell.attr("value");
-
                             //Calculate how many cells we need to move it.
                             newX = x - emptySpaces;
-        
                             //Get the new location where our cell will be.
                             //Assign the value, text and color it should have.
                             newLocationCell = $("[x=" + newX + "][y=" + y + "]");
                             newLocationCell.attr("value",currentCellValue);
                             newLocationCell.text(currentCellValue);
-
                             //Update the cell values where our currentCell was before moving it
                             currentCell.attr("value", 0);
                             currentCell.text(0);
@@ -119,26 +108,20 @@
                                cellGenerated = true;
                                 generateCell(1);
                             }
-                            //Change x value in order to start checking from beggining of the row.
-                            x = x-emptySpaces;
                         }
-                        emptySpaces = 0;
                     }
-                }
-                
+                }     
             }
-            mergeToLeft();
+            mergeToLeft(cellGenerated);
         }
 
-        function mergeToLeft(){
-            let cellGenerated = false;
+        function mergeToLeft(cellGenerated){
             let cellsMerged = false;
             for(var y = 0; y < 4; y++){
                 for(var x = 0; x < 4; x++){
                     //Get both current and rightCell values.
                     let currentCell = $("[x=" + x + "][y=" + y + "]");
-                    let currentCellValue = currentCell.attr("value");
-                    
+                    let currentCellValue = currentCell.attr("value");    
                     let rightX = x+1;
                     let rightCell = $("[x=" + rightX + "][y=" + y + "]");
                     let rightCellValue = rightCell.attr("value");
@@ -146,10 +129,9 @@
                     if(currentCellValue === rightCellValue && currentCellValue > 0){
                         currentCell.attr("value",currentCellValue*2);
                         currentCell.text(currentCellValue*2);
-
                         rightCell.attr("value", 0);
                         rightCell.text(0);
-                        //cellsMerged = true;
+                        cellsMerged = true;
                         //Add one point for each merge.
                         var points = $("#points").text();
                         points++;
@@ -161,7 +143,6 @@
                         let leftCell = $("[x=" + leftX + "][y=" + y + "]");
                         let leftCellValue = leftCell.attr("value");
                         //Check if left cell is empty and inside bounds.
-                        
                         if(leftCellValue == 0 && leftX >=0){
                             //Update the cells and erase the current.
                             leftCell.attr("value", currentCellValue*2);
@@ -197,30 +178,23 @@
 
         function moveToRight(){
             let cellGenerated = false;
+
             for(var y = 0; y < 4; y++){
                 var emptySpaces = 0;
                 for(var x = 3; x > -1; x--){
-                    
+                    //Obtain data from the cell we are currently on.
+                    let currentCell = $("[x=" + x + "][y=" + y + "]");
+                    currentCellValue = currentCell.attr("value");
                     //Check if the current cell we are on is empty.
-                    let currentCell = $("[x=" + x + "][y=" + y + "][value=0]");
-                    if(currentCell[0]){
-                        //Count the empty spaces in every row.
-                        emptySpaces++;
+                    if(currentCell.attr("value") === "0"){
+                        emptySpaces++;//Add up if is empty
                     }else{
                         //If we are not on the edge(x = 0).
                         if(emptySpaces > 0){
-
-                            //Take the properties of the current cell we are on.
-                            currentCell = $("[x=" + x + "][y=" + y + "]");
-                            
-                            currentCellValue = currentCell.attr("value");
-
-
                             //Calculate how many cells we need to move it.
                             newX = x + emptySpaces;
-        
                             //Get the new location where our cell will be.
-                            //Assign the value, text and color it should have.
+                            //Assign the value and text it should have.
                             newLocationCell = $("[x=" + newX + "][y=" + y + "]");
                             newLocationCell.attr("value",currentCellValue);
                             newLocationCell.text(currentCellValue);
@@ -233,27 +207,20 @@
                                 cellGenerated = true;
                                 generateCell(1);
                             }
-
-                            //Change x value in order to start checking from beggining of the row.
-                            x = x+emptySpaces;
                         }
-                        emptySpaces = 0;
                     }
                 }
-                
             }
-            mergeToRight();    
+            mergeToRight(cellGenerated);    
         }
 
-        function mergeToRight(){
-            let cellGenerated = false;
+        function mergeToRight(cellGenerated){
             let cellsMerged = false;
             for(var y = 0; y < 4; y++){
                 for(var x = 3; x > -1; x--){
                     //Get both current and rightCell values.
                     let currentCell = $("[x=" + x + "][y=" + y + "]");
                     let currentCellValue = currentCell.attr("value");
-                    
                     let leftX = x-1;
                     let leftCell = $("[x=" + leftX + "][y=" + y + "]");
                     let leftCellValue = leftCell.attr("value");
@@ -264,7 +231,7 @@
                         
                         leftCell.attr("value", 0);
                         leftCell.text(0);
-                        //cellsMerged = true;
+                        cellsMerged = true;
                         //Add one point for each merge.
                         var points = $("#points").text();
                         points++;
@@ -298,11 +265,10 @@
                             currentCell.attr("value",0);
                             currentCell.text(0);
                         }
-
                     }
+                    //Generate one new cell value if merge happens.
                 }
             }
-            //Generate one new cell value if merge happens.
             if(!cellGenerated && cellsMerged){
                 cellGenerated = true;
                 generateCell(1);
@@ -311,30 +277,25 @@
 
         function moveUp(){
             let cellGenerated = false;
+
             for(var x = 0; x < 4; x++){
                 var emptySpaces = 0;
                 for(var y = 0; y < 4; y++){
+                    //Obtain data from the cell we are currently on.
+                    let currentCell = $("[x=" + x + "][y=" + y + "]");
+                    currentCellValue = currentCell.attr("value");
                     //Check if the current cell we are on is empty.
-                    let currentCell = $("[x=" + x + "][y=" + y + "][value=0]");
-                    if(currentCell[0]){
-                        //Count the empty spaces in every row.
-                        emptySpaces++;
+                    if(currentCell.attr("value") === "0"){
+                        emptySpaces++;//Add up if is empty
                     }else{
-                        //If we are not on the edge(x = 0).
                         if(emptySpaces > 0){
-                            //Take the properties of the current cell we are on.
-                            currentCell = $("[x=" + x + "][y=" + y + "]");
-                            currentCellValue = currentCell.attr("value");
-
                             //Calculate how many cells we need to move it.
                             newY = y - emptySpaces;
-        
                             //Get the new location where our cell will be.
                             //Assign the value, text and color it should have.
                             newLocationCell = $("[x=" + x + "][y=" + newY + "]");
                             newLocationCell.attr("value",currentCellValue);
                             newLocationCell.text(currentCellValue);
-
                             //Update the cell values where our currentCell was before moving it
                             currentCell.attr("value", 0);
                             currentCell.text(0);
@@ -343,27 +304,21 @@
                                 cellGenerated = true;
                                 generateCell(1);
                             }
-
-                            //Change x value in order to start checking from beggining of the row.
-                            y = y-emptySpaces;
                         }
-                        emptySpaces = 0;
                     }
-                }
-                
+                }  
             }
-            mergeUp();
+            mergeUp(cellGenerated);
         }
 
-        function mergeUp(){
-            let cellGenerated = false;
+        function mergeUp(cellGenerated){
             let cellsMerged = false;
+
             for(var x = 0; x < 4; x++){
                 for(var y = 0; y < 4; y++){
                     //Get both current and downCell values.
                     let currentCell = $("[x=" + x + "][y=" + y + "]");
                     let currentCellValue = currentCell.attr("value");
-                    
                     let downY = y+1;
                     let downCell = $("[x=" + x + "][y=" + downY + "]");
                     let downCellValue = downCell.attr("value");
@@ -371,7 +326,6 @@
                     if(currentCellValue === downCellValue && currentCellValue > 0){
                         currentCell.attr("value",currentCellValue*2);
                         currentCell.text(currentCellValue*2);
-
                         downCell.attr("value", 0);
                         downCell.text(0);
                         cellsMerged = true;
@@ -421,27 +375,22 @@
             for(var x = 0; x < 4; x++){
                 var emptySpaces = 0;
                 for(var y = 4; y > -1; y--){
-                    //Check if the current cell we are on is empty.
-                    let currentCell = $("[x=" + x + "][y=" + y + "][value=0]");
-                    if(currentCell[0]){
-                        //Count the empty spaces in every row.
-                        emptySpaces++;
+                    //Obtain data from the cell we are currently on.
+                    let currentCell = $("[x=" + x + "][y=" + y + "]");
+                    currentCellValue = currentCell.attr("value");
+
+                    if(currentCell.attr("value") === "0"){//Check if the current cell we are on is empty.
+                        emptySpaces++;//Add up if is empty
                     }else{
                         //If we are not on the edge(x = 0).
                         if(emptySpaces > 0){
-                            //Take the properties of the current cell we are on.
-                            currentCell = $("[x=" + x + "][y=" + y + "]");
-                            currentCellValue = currentCell.attr("value");
-
                             //Calculate how many cells we need to move it.
                             newY = y + emptySpaces;
-        
                             //Get the new location where our cell will be.
                             //Assign the value, text and color it should have.
                             newLocationCell = $("[x=" + x + "][y=" + newY + "]");
                             newLocationCell.attr("value",currentCellValue);
                             newLocationCell.text(currentCellValue);
-
                             //Update the cell values where our currentCell was before moving it
                             currentCell.attr("value", 0);
                             currentCell.text(0);
@@ -450,27 +399,21 @@
                                 cellGenerated = true;
                                 generateCell(1);
                             }
-
-                            //Change x value in order to start checking from beggining of the row.
-                            y = y+emptySpaces;
                         }
-                        emptySpaces = 0;
                     }
-                }
-                
+                } 
             }
-            mergeDown();
+            mergeDown(cellGenerated);
         }
 
-        function mergeDown(){
-            let cellGenerated = false;
+        function mergeDown(cellGenerated){
             let cellsMerged =  false;
+
             for(var x = 0; x < 4; x++){
                 for(var y = 4; y > -1; y--){
                     //Get both current and downCell values.
                     let currentCell = $("[x=" + x + "][y=" + y + "]");
                     let currentCellValue = currentCell.attr("value");
-                    
                     let upY = y-1;
                     let upCell = $("[x=" + x + "][y=" + upY + "]");
                     let upCellValue = upCell.attr("value");
@@ -537,7 +480,7 @@
 
 
             if(!emptyCells){
-                alert("GAME OVER FAGGOTTINI");
+                alert("GAME OVER");
                 $("td").attr("value", 0);
                 $("td").text(0);
                 generateCell(2);
@@ -547,7 +490,6 @@
 
         $("html").keydown(function(event){
             var pulsedKey = event.which;
-
             switch(pulsedKey){
                 case 37://Code for left-arrow.
                     moveToLeft();
@@ -568,42 +510,14 @@
             checkGameOver();
         });
 
-        // Call to launch the game
-        $(this).append(generateTable());
+        
+        $(this).append(generateTable());// Call to launch the game
         generateCell(2);
-        //////////////////////////
+
         /*
-        let cell = $("[x=0][y=0]");
+        let cell = $("[x=1][y=2]");
         cell.attr("value", 2);
         cell.text(2);
-
-        cell = $("[x=0][y=1]");
-        cell.attr("value", 4);
-        cell.text(4);
-          
-        cell = $("[x=0][y=3]");
-        cell.attr("value", 8);
-        cell.text(8);
-        
-        cell = $("[x=1][y=0]");
-        cell.attr("value", 2);
-        cell.text(2);
-
-        cell = $("[x=0][y=2]");
-        cell.attr("value", 4);
-        cell.text(4);
-        
-        cell = $("[x=1][y=2]");
-        cell.attr("value", 4);
-        cell.text(4);
-
-        cell = $("[x=3][y=2]");
-        cell.attr("value", 4);
-        cell.text(4);
-        
-        updateColors();
         */
-        ///////////////////////
     }
-
 })(jQuery);
